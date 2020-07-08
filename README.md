@@ -32,7 +32,7 @@ Download the latest deb packages for each winmin component in the releases secti
 Once downloaded, install them with dpkg
 
 ```
-$ sudo dpkg -i winmin-viewer_0.1-1_amd64.deb winmin-tools_0.1-1_amd64.deb winmin-autosetup_0.1-1_amd64.deb pywinminsetup_0.1-1_amd64.deb
+$ sudo dpkg -i winmin-viewer_0.1-1_amd64.deb winmin-tools_0.1-1_amd64.deb winmin-autosetup_0.1-1_amd64.deb
 ```
 If you are not using a Ubuntu based distribution, you can build and install the packages manually as described in each repository's readme.
 
