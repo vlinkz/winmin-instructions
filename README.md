@@ -9,42 +9,17 @@ Winmin (working title) is a set of tools and scripts that facilitate using Windo
 Install packages and setup groups
 
 ```
-$ sudo apt -y install spice-client-gtk libvirt-clients libvirt-daemon-system virtinst python3 python-is-python3 python3-magic samba
+$ sudo apt -y install spice-client-gtk libvirt-clients libvirt-daemon-system virtinst python3 python-is-python3 python3-magic samba wimtools
 
 $ sudo usermod -aG kvm,tty $USER
 ```
 You may need to logout or reboot in order for group changes to take effect. You can check your current groups with the `groups` command.
 
-In order to transfer files between the host and guest, a samba server must be set up. To set this up, add the following to the end of `/etc/samba/smb.conf`.
-
-```
-[winmin]
-  comment = VM Filesystem
-  path = /
-  browseable = yes
-  read only = no
-```
-
-After changing the samba config, add an smb account for your user.
-```
-$ sudo smbpasswd -a $USER
-```
-
-Then restart the samba service.
-
-```
-$ sudo systemctl restart smbd
-```
-Enable the service if not automatically enabled
-```
-$ sudo systemctl enable smbd
-```
 Set default libvirt uri to system.
 ```
 $ echo "export LIBVIRT_DEFAULT_URI=\"qemu:///system\"" >> $HOME/.bashrc
 $ source $HOME/.bashrc
 ```
-
 
 # Setting up Winmin
 
@@ -52,22 +27,21 @@ Download the latest deb packages for each winmin component in the releases secti
 
 - [winmin-viewer](https://github.com/vlinkz/winmin-viewer/releases)
 - [winmin-tools](https://github.com/vlinkz/winmin-tools/releases)
-- [winmin-setup](https://github.com/vlinkz/winmin-setup/releases)
+- [winmin-autosetup](https://github.com/vlinkz/winmin-autosetup/releases)
 
 Once downloaded, install them with dpkg
 
 ```
-$ sudo dpkg -i winmin-viewer_0.1-1_amd64.deb winmin-tools_0.1-1_amd64.deb winmin-setup_0.1-1_amd64.deb pywinminsetup_0.1-1_amd64.deb
+$ sudo dpkg -i winmin-viewer_0.1-1_amd64.deb winmin-tools_0.1-1_amd64.deb winmin-autosetup_0.1-1_amd64.deb pywinminsetup_0.1-1_amd64.deb
 ```
 If you are not using a Ubuntu based distribution, you can build and install the packages manually as described in each repository's readme.
 
-Run the winmin setup application from the command line. You will need to input a Windows 10 iso (May 2020 update or later only). 
-```
-$ winmin-setup
-```
-After selecting the ISO and clicking next, the application will appear to freeze. It is NOT frozen, it is downloading the virtio-win guest iso (I'll fix the loading screen soon).
+Run the winmin setup application from the command line. You will need to input a Windows 10 iso (May 2020 update or later only). Replace `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` with your Windows product key. If no virtio-win iso is specifed, the script will download the latest version.
 
-Follow the instructions in the application. Make sure you install the virtio-win guest tools and run the script specified in the instruction. Also make sure to reboot at least once before finishing (it says when to do it in the instructions).
+```
+$ winmin-autosetup ./Win10.iso XXXXX-XXXXX-XXXXX-XXXXX-XXXXX ./virtio-win.iso
+```
+A virtual machine will be created. You will be able to see Windows being set up, but no user input is required.
 
 Once finished, head over to the [winmin-pkgs](https://github.com/vlinkz/winmin-pkgs) repo to find yaml packages. Feel free to submit PRs with new packages or request them in the issues section.
 
@@ -116,7 +90,7 @@ Winmin works by installing Windows applications into virtual machines, and then 
 
 ### Initial Setup
 
-When running `winmin-setup`, a [python script](TODO) executes commands to create a libvirt virtual machine named `winmin-base`. After the user proceeds through the installation, this virtual is shut down and never directly used again. This machine works as a base image where all other virtual machine with applications installed are derived from. It is important to make this image as small and lightweight as possible in order to have good performance.
+When running `winmin-autosetup`, a python script executes commands to create a libvirt virtual machine named `winmin-base`. After the installation is completed, this virtual is shut down and never directly used again. This machine works as a base image where all other virtual machine with applications installed are derived from. It is important to make this image as small and lightweight as possible in order to have good performance.
 
 When setting up the vm, the [Windows Emergency Management Services and Serial Console](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc787940(v=ws.10)?redirectedfrom=MSDN) is installed. This allows Winmin tools to interact directly with the Windows guest's serial interface and execute commands quickly.
 
